@@ -17,7 +17,7 @@ This project addresses a critical challenge in semiconductor manufacturing: **de
 
 ## 📊 Dataset Overview
 
-- **Source**: [UCI Semiconductor Manufacturing Dataset (Kaggle)](https://www.kaggle.com/datasets/paresh2047/uci-semcom/data) 
+- **Source**: [UCI Semiconductor Manufacturing Dataset (Kaggle)] (https://www.kaggle.com/datasets/paresh2047/uci-semcom/data) 
 - **Total Samples**: 1,567 manufacturing runs
 - **Features**: 592 sensor measurements (after removing time column)
 - **Target Variable**: Pass/Fail (-1 = Pass, 1 = Fail)
@@ -74,64 +74,6 @@ Optimal Configuration: k = 10 features
 | **SMOTE (Top 10)** | Top 10 | **85.67%** | **33.3%** | 21.6% | 26.2% |
 | **SMOTE (Full)** | 590 | 92.04% | 0.0% | 0.0% | 0.0% |
 
-### Key Performance Insights
-
-#### ✅ **SMOTE + Top 10 Features = WINNER**
-- **Failure Detection**: 33.3% (8/24 failures caught) vs 0% for other methods
-- **Balanced Performance**: 85.7% accuracy with meaningful failure detection
-- **Computational Efficiency**: 98.3% fewer features to process
-
-#### ❌ **Full Feature Set Pitfalls**
-- More features introduced noise that prevented failure detection
-- Demonstrates "curse of dimensionality" with imbalanced data
-- Feature selection was crucial for success
-
-#### 📊 **Confusion Matrix - Best Model (SMOTE + Top 10)**
-```
-Predicted:     Pass    Fail
-Actual: Pass   261     29    ← 261 correct passes, 29 false alarms
-        Fail    16      8    ← 16 missed failures, 8 correct detections
-```
-
-## 💡 Key Insights
-
-### 1. **Feature Selection is Critical**
-- Top 10 features outperformed full 590-feature model
-- Strategic selection beats throwing more data at the problem
-- SelectKBest identified most discriminative features for failure detection
-
-### 2. **SMOTE Transforms Imbalanced Learning**
-- Generated 1,093 synthetic failure samples (from 80 to 1,173)
-- Enabled model to learn failure patterns previously invisible
-- Balanced training set: 50% pass / 50% fail
-
-### 3. **Business Impact**
-- **Before**: Model misses all failures (93.4% accuracy, useless for QC)
-- **After**: Catches 33% of failures (85.7% accuracy, actionable for prevention)
-- Trade-off of slightly lower accuracy for dramatically better failure detection
-
-### 4. **Quality Control Implications**
-- Semiconductor manufacturing requires failure detection over overall accuracy
-- Missing failures costs money; false alarms can be investigated
-- 33% detection rate provides significant quality improvement
-
-## 🏆 Final Recommendations
-
-### ✅ **Recommended Approach: SMOTE + Top 10 Features**
-```python
-# Feature Selection
-selector = SelectKBest(score_func=f_classif, k=10)
-X_selected = selector.fit_transform(X_train, y_train)
-
-# SMOTE Oversampling
-smote = SMOTE(random_state=42)
-X_balanced, y_balanced = smote.fit_resample(X_selected, y_train)
-
-# Model Training
-rf = RandomForestClassifier(random_state=42, n_estimators=100)
-rf.fit(X_balanced, y_balanced)
-```
-
 ### 📋 **Selected Features (by importance)**
 1. Feature 59 (F-score: 34.68)
 2. Feature 103 (F-score: 35.13)
@@ -144,13 +86,6 @@ rf.fit(X_balanced, y_balanced)
 9. Feature 348 (F-score: 19.89)
 10. Feature 435 (F-score: 19.69)
 
-### 🔄 **Next Steps for Production**
-1. **Model Validation**: Cross-validation on larger datasets
-2. **Threshold Tuning**: Adjust decision threshold for specific business needs
-3. **Ensemble Methods**: Combine multiple models for better performance
-4. **Real-time Deployment**: Implement for live manufacturing monitoring
-5. **Cost-sensitive Learning**: Incorporate business costs of false positives/negatives
-
 ## 🛠️ Technical Requirements
 
 - **Python 3.8+**
@@ -160,19 +95,5 @@ rf.fit(X_balanced, y_balanced)
   - imbalanced-learn (for SMOTE)
   - matplotlib, seaborn
   - kagglehub (for data download)
-
-## 📁 Project Structure
-```
-semiconductor-mfg-feature-selection/
-├── README.md                           # This file
-├── semiconductor-process-feature-selection.ipynb  # Complete analysis
-└── uci-secom.csv                      # Dataset (downloaded automatically)
-```
-
-## 🤝 Contributing
-
-This analysis demonstrates the importance of combining feature selection with imbalance handling for real-world manufacturing quality control. The methodology can be adapted to other high-dimensional, imbalanced classification problems.
-
----
 
 **Key Takeaway**: Strategic feature selection + SMOTE oversampling achieved what traditional approaches couldn't - turning a failure-blind model into a quality control system that actually catches manufacturing defects! 🎯
